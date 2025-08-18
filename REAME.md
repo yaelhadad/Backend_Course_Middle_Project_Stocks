@@ -7,7 +7,7 @@ Django web application for managing stock information with real-time data and AI
 - **📊 Stock Management**: Browse and view detailed stock information
 - **🔐 User Authentication**: Signup, login, logout system
 - **👥 User Reviews**: Rate and review stocks (authenticated users only)
-- **🤖 Advanced AI Features**: Company summaries, news analysis, market insights, price predictions (login required)
+- **🤖 Advanced AI Features**: Company summaries and news analysis with investment insights (login required)
 - **📈 Real-time Data**: Live stock prices via Alpha Vantage API
 - **🎯 Admin Panel**: Full control over stocks and reviews
 
@@ -15,8 +15,9 @@ Django web application for managing stock information with real-time data and AI
 
 - **Backend**: Django 5.2.5, SQLite3
 - **Frontend**: Bootstrap 5, HTML5, CSS3
-- **APIs**: Google Gemini (AI), Alpha Vantage (stock data)
+- **APIs**: Google Gemini (AI analysis), Alpha Vantage (stock data + news)
 - **Authentication**: Django built-in system
+- **Dependencies**: See `requirements.txt` for full list
 
 ## 🚀 Installation & Setup
 
@@ -56,13 +57,11 @@ Create a `.env` file in the project root:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-NEWS_API_KEY=your_news_api_key_here
 ```
 
 **Get API Keys:**
-- **Gemini AI**: https://makersuite.google.com/app/apikey
-- **Alpha Vantage**: https://www.alphavantage.co/support/#api-key
-- **NewsAPI**: https://newsapi.org/register (Free: 1000 requests/day)
+- **Gemini AI**: https://makersuite.google.com/app/apikey (Free tier available)
+- **Alpha Vantage**: https://www.alphavantage.co/support/#api-key (Free: 25 requests/day)
 
 ### Step 5: Database Setup
 ```bash
@@ -99,22 +98,25 @@ Visit: http://127.0.0.1:8000/
 
 ## 🤖 Advanced AI Features
 
-**Four Powerful AI Analysis Tools** (Login Required):
+**Two Powerful AI Analysis Tools** (Login Required):
 
-1. **📝 Company Summary** - What the company does in simple terms
-2. **📰 News Analysis** - Recent news + AI investment insights
-3. **📊 Market Analysis** - Industry position, growth potential, investment recommendation
-4. **🔮 Price Prediction** - Technical analysis & future outlook
+1. **📝 Company Summary** - AI explains what the company does in simple terms
+2. **📰 Latest News + AI Analysis** - Recent financial news with intelligent investment insights
 
 **Powered by:**
-- **Google Gemini AI** for intelligent analysis
-- **NewsAPI** for real-time financial news
-- **Alpha Vantage** for live market data
+- **Google Gemini AI** for intelligent analysis and content generation
+- **Alpha Vantage API** for live market data AND financial news
+
+**How it works:**
+- **AI Summary**: Uses company description to generate simple explanations
+- **News Analysis**: Fetches 3 latest news articles, then AI analyzes them for investment insights
+- **Fallback system**: Always provides useful content even when APIs are down
+- **Smart caching**: Updates stock prices every 60 minutes to save API calls
 
 **Features:**
-- Multi-language support (Hebrew/English)
-- Real-time news aggregation
-- Professional investment insights
+- Single sentence AI summaries (fast and concise)
+- Real-time financial news from Alpha Vantage
+- Fallback links to Yahoo Finance & MarketWatch
 - Educational disclaimers for responsible investing
 
 ## 🔐 Security
@@ -137,9 +139,11 @@ pip install -r requirements.txt
 ```
 
 **2. API Key Errors**
-- Check `.env` file exists in project root
+- Check `.env` file exists in project root with both required keys
 - Verify API keys are valid and active
 - Ensure no extra spaces in `.env` file
+- **Note**: Only GEMINI_API_KEY and ALPHA_VANTAGE_API_KEY are required
+- News feature uses Alpha Vantage (same API key as stock data)
 
 **3. Database Errors**
 ```bash
