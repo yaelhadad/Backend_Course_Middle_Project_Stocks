@@ -76,7 +76,7 @@ def get_stock_news_fast(stock_symbol):
             "function": "NEWS_SENTIMENT",
             "tickers": stock_symbol,
             "apikey": API_KEY_STOCKS,
-            "limit": 3
+            "limit": 15
         }
 
         response = requests.get(BASE_URL, params=params, timeout=5)
