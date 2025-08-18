@@ -1,0 +1,195 @@
+{% extends 'stocks/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ stock.company_name }}{% endblock %}
+
+{% block content %}
+<!-- Display Messages -->
+{% if messages %}
+<div class="mt-3">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="row mt-4">
+  <div class="col-md-4">
+    <img src="{{ stock.logo.url }}" class="img-fluid" alt="{{ stock.company_name }}">
+  </div>
+  <div class="col-md-8">
+    <h2>{{ stock.company_name }} ({{ stock.symbol }})</h2>
+    <p><strong>Current Price:</strong> ${{ stock.current_price|floatformat:2 }}</p>
+    <p><strong>Market Cap:</strong> ${{ stock.market_cap|intcomma }}</p>
+    <p><strong>Year Founded:</strong> {{ stock.year_founded }}</p>
+    <p><strong>Description:</strong></p>
+    <p>{{ stock.description }}</p>
+
+    {% if user.is_authenticated %}
+    <div class="row">
+      <div class="col-md-6">
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" name="ai_summary" value="1" class="btn btn-warning">📝 AI Summary- Tagline</button>
+        </form>
+      </div>
+      <div class="col-md-6">
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="get_news" value="1">
+          <button type="submit" class="btn btn-info">
+            📰 Get Latest News
+          </button>
+        </form>
+        <small class="text-muted d-block">📈 Links for news + AI analysis</small>
+      </div>
+    </div>
+    
+    {% else %}
+    <div class="alert alert-info">
+      <strong>Want to get AI insights and latest news?</strong>
+      <a href="{% url 'stocks:login' %}" class="btn btn-primary btn-sm">Login</a>
+      or
+      <a href="{% url 'stocks:signup' %}" class="btn btn-success btn-sm">Sign Up</a>
+      to access premium features!
+    </div>
+    {% endif %}
+
+    <!-- Debug Info - Hidden in production -->
+    {% comment %}
+    <div class="mt-2">
+      <small class="text-muted">
+        🔧 Debug: User={{ user.username|default:"Not logged in" }}, Symbol={{ stock.symbol }}, Method={{ request.method }}
+        {% if request.method == "POST" %}
+          | POST keys: {{ request.POST.keys|join:", " }}
+          | get_news in POST: {% if 'get_news' in request.POST %}True{% else %}False{% endif %}
+          | ai_summary in POST: {% if 'ai_summary' in request.POST %}True{% else %}False{% endif %}
+        {% endif %}
+        | Authenticated: {{ user.is_authenticated }}
+      </small>
+    </div>
+    {% endcomment %}
+
+    {% if ai_summary %}
+    <div class="mt-3 alert alert-info">
+      <h5>The company specializes in:</h5>
+      <p>{{ ai_summary }}</p>
+    </div>
+    {% endif %}
+
+    {% if news_summary %}
+    <div class="mt-3 alert alert-success">
+      <h5>📰 Latest News Summary:</h5>
+      <p>{{ news_summary }}</p>
+    </div>
+    {% endif %}
+
+    {% if news_articles %}
+    <div class="mt-3">
+      <h5>Recent News Articles:</h5>
+      {% for article in news_articles %}
+      <div class="card mt-2">
+        <div class="card-body">
+          <h6 class="card-title">
+            <a href="{{ article.url }}" target="_blank" class="text-decoration-none">{{ article.title }}</a>
+          </h6>
+          <p class="card-text">{{ article.summary|truncatewords:30 }}</p>
+          <div class="d-flex justify-content-between">
+            <small class="text-muted">Source: {{ article.source }}</small>
+            <small class="text-muted">{{ article.time_published }}</small>
+          </div>
+          {% if article.sentiment_score %}
+          <div class="mt-2">
+            <span class="badge {% if article.sentiment_score > 0 %}bg-success{% elif article.sentiment_score < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+              Sentiment: {% if article.sentiment_score > 0 %}Positive{% elif article.sentiment_score < 0 %}Negative{% else %}Neutral{% endif %}
+            </span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Reviews Section -->
+    <hr class="mt-4">
+    <h3>Reviews</h3>
+
+    {% if user.is_authenticated %}
+      <!-- Form for adding/updating review -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5>{% if user_review %}Update Your Review{% else %}Write a Review{% endif %}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="rating" class="form-label">Rating (1-5 stars)</label>
+              <select name="rating" id="rating" class="form-select" required>
+                <option value="">Select Rating</option>
+                {% for i in "12345" %}
+                <option value="{{ i }}" {% if user_review.rating == i|add:0 %}selected{% endif %}>{{ i }} Star{{ i|add:0|pluralize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="comment" class="form-label">Your Review</label>
+              <textarea name="comment" id="comment" class="form-control" rows="4" required maxlength="500" placeholder="Share your thoughts about this stock...">{% if user_review %}{{ user_review.comment }}{% endif %}</textarea>
+              <div class="form-text">Maximum 500 characters</div>
+            </div>
+            <button type="submit" name="review_submit" class="btn btn-success">
+              {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+            </button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        <strong>Want to share your thoughts?</strong>
+        <a href="{% url 'stocks:login' %}" class="btn btn-primary btn-sm">Login</a>
+        or
+        <a href="{% url 'stocks:signup' %}" class="btn btn-success btn-sm">Sign Up</a>
+        to write a review!
+      </div>
+    {% endif %}
+
+    <!-- Display existing reviews -->
+    {% if reviews %}
+    <div class="mt-4">
+      <h4>User Reviews ({{ reviews.count }})</h4>
+      {% for review in reviews %}
+      <div class="card mt-2">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h6 class="card-title">
+              {{ review.user.username }}
+              <span class="text-warning">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+            </h6>
+            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+          </div>
+          <p class="card-text">{{ review.comment }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="mt-4">
+      <p class="text-muted">No reviews yet. Be the first to review this stock!</p>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'stocks:stock_list' %}" class="btn btn-secondary mt-4">Back to Stocks</a>
+  </div>
+</div>
+
+<!-- Simple working form - no JavaScript interference -->
+
+{% endblock %}
