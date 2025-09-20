@@ -53,7 +53,19 @@ pip install -r requirements.txt
 ```
 
 ### Step 4: Environment Variables Setup
+<<<<<<< HEAD
 Create a `.env` file in the project root:
+=======
+Copy the example file and fill in your API keys:
+```bash
+# Copy the example file
+cp env.example .env
+
+# Edit .env with your API keys
+```
+
+Required API Keys:
+>>>>>>> 93da23a (first commit)
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
@@ -161,10 +173,19 @@ python manage.py collectstatic
 ## 📂 Project Structure
 ```
 Final_Project/
+<<<<<<< HEAD
 ├── db.sqlite3              # Database file
 ├── manage.py               # Django management script
 ├── requirements.txt        # Python dependencies
 ├── .env                   # Environment variables (create this)
+=======
+├── db.sqlite3              # Database file (auto-generated)
+├── manage.py               # Django management script
+├── requirements.txt        # Python dependencies
+├── env.example            # Environment variables template
+├── .env                   # Your API keys (create from env.example)
+├── .gitignore             # Git ignore rules
+>>>>>>> 93da23a (first commit)
 ├── media/logos/           # Stock company logos
 ├── stockinfo/             # Main Django project
 │   ├── settings.py        # Django settings
@@ -179,3 +200,32 @@ Final_Project/
     └── ...
 ```
 
+<<<<<<< HEAD
+=======
+## 🚀 Production Deployment
+
+For production deployment:
+
+1. **Environment Variables:**
+```env
+DEBUG=False
+SECRET_KEY=your-production-secret-key
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+```
+
+2. **Database:** Consider PostgreSQL for production
+3. **Static Files:** Configure proper static file serving
+4. **Security:** Enable HTTPS and review security settings
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License.
+>>>>>>> 93da23a (first commit)
